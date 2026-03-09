@@ -1,0 +1,30 @@
+# Virtual Environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE & Editor Configs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment Variables (CRITICAL)
+.env
+.env.local
+
+# Python Cache & Compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Temporary Files / Output
+temp_files/
+tmp/
+*.log
+
+# OS Generated
+.DS_Store
+Thumbs.db
