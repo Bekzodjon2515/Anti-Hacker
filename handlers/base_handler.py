@@ -177,7 +177,7 @@ async def cmd_start(message: Message) -> None:
 
     from keyboards import get_main_menu
     await message.answer(
-        f"👋 Assalomu alaykum!  <b>{message.from_user.first_name}</b>\n\n{START_TEXT}",
+        f"👋 VAssalomu alaykum!  <b>{message.from_user.first_name}</b>\n\n{START_TEXT}",
         parse_mode="HTML",
         reply_markup=get_main_menu(),
     )
