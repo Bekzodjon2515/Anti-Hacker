@@ -218,8 +218,9 @@ async def reply_send_file(message: Message) -> None:
         "📄 PDF — yashirin JS, havolalar, metadata\n"
         "📝 DOCX/DOC — makroslar, tashqi havolalar\n"
         "📱 APK — ruxsatlar, imzo tekshiruvi\n"
-        "🎬 Video (MP4, AVI, MKV) — format, metadata\n\n"
-        "📏 Maksimal hajm: <b>20 MB</b>",
+        "🎬 Video — maxfiy metadata va steganografiya\n"
+        "📧 Email, JS fayllari va Arxivlar (ZIP, RAR)\n\n"
+        "📏 Maksimal hajm: <b>200 MB</b>",
         parse_mode="HTML",
     )
 
@@ -246,6 +247,17 @@ async def reply_last_report(message: Message) -> None:
             "URL yuboring yoki fayl biriktiring.",
             parse_mode="HTML",
         )
+
+@router.message(F.text == "📞 Biz bilan bog`lanish")
+async def reply_contact(message: Message) -> None:
+    await message.answer(
+        "📞 <b>Biz bilan bog`lanish</b>\n\n"
+        "🙎🏻‍♂️ <b>Loyiha asoschisi:</b>\n"
+        "@Bekzodjon_Xolyigitov \n"
+        "📱 <b>Telefon:</b> +998 88 245 22 77",
+        parse_mode="HTML",
+        disable_web_page_preview=True
+    )
 
 
 @router.message(F.text == "📖 Yordam")

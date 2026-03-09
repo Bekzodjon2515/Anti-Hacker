@@ -18,6 +18,9 @@ def get_main_menu() -> ReplyKeyboardMarkup:
                 KeyboardButton(text="📊 Oxirgi Hisobot"),
                 KeyboardButton(text="📖 Yordam"),
             ],
+            [
+                KeyboardButton(text="📞 Biz bilan bog`lanish"),
+            ],
         ],
         resize_keyboard=True,
         input_field_placeholder="URL yuboring yoki fayl biriktiring...",
