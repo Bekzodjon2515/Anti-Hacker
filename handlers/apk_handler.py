@@ -7,6 +7,7 @@ from aiogram.types import Message
 from utils.file_analyzer import analyze_apk
 from utils.report_generator import generate_report
 from keyboards import get_file_check_keyboard
+from config import RATE_LIMIT
 from handlers.base_handler import (
     check_rate_limit,
     send_rate_limit_message,
@@ -87,7 +88,7 @@ async def handle_apk(message: Message) -> None:
             report += perm_text
 
         report_id = await save_last_report(user_id, report, query_data=file_hash)
-        record_scan(user_id, "APK", analysis['score'])
+        await record_scan(user_id, "APK", analysis['score'])
         remaining = get_remaining_requests(user_id)
 
         try:

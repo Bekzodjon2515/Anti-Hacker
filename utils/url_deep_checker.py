@@ -5,7 +5,7 @@ import asyncio
 import aiohttp
 from typing import Dict, Any, List, Optional
 from urllib.parse import urlparse
-from datetime import datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ async def check_ssl_certificate(domain: str, port: int = 443) -> Dict[str, Any]:
 
     try:
         ctx = ssl.create_default_context()
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
 
         def _get_cert():
             with socket.create_connection((domain, port), timeout=5) as sock:
@@ -68,7 +68,7 @@ async def check_ssl_certificate(domain: str, port: int = 443) -> Dict[str, Any]:
             not_after = cert.get('notAfter', '')
             if not_after:
                 expire_date = datetime.strptime(not_after, '%b %d %H:%M:%S %Y %Z')
-                days_left = (expire_date - datetime.utcnow()).days
+                days_left = (expire_date - datetime.now(timezone.utc).replace(tzinfo=None)).days
                 result["expires"] = expire_date.strftime('%Y-%m-%d')
                 result["days_left"] = days_left
 
@@ -408,6 +408,8 @@ def check_whois(domain: str) -> Dict[str, Any]:
 
         if creation:
             result["creation_date"] = str(creation)
+            if creation.tzinfo is not None:
+                creation = creation.replace(tzinfo=None)
             age_days = (datetime.now() - creation).days
             result["domain_age_days"] = age_days
 
@@ -430,6 +432,8 @@ def check_whois(domain: str) -> Dict[str, Any]:
 
         if expiration:
             result["expiration_date"] = str(expiration)
+            if expiration.tzinfo is not None:
+                expiration = expiration.replace(tzinfo=None)
             exp_days = (expiration - datetime.now()).days
             if exp_days < 30:
                 result["warnings"].append(f"⚠️ Domen tez tugaydi: {exp_days} kun qoldi")
@@ -490,7 +494,7 @@ async def deep_url_check(url: str) -> Dict[str, Any]:
         results["all_warnings"].extend(res.get("warnings", []))
         results["total_score_impact"] += res.get("score_impact", 0)
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     try:
         dns_result = await loop.run_in_executor(None, check_dns_records, domain)
         results["dns"] = dns_result

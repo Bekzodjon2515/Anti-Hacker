@@ -229,7 +229,7 @@ async def reply_send_file(message: Message) -> None:
 @router.message(Command("stats"))
 async def cmd_stats(message: Message) -> None:
     from utils.stats_manager import format_user_stats
-    stats_text = format_user_stats(message.from_user.id)
+    stats_text = await format_user_stats(message.from_user.id)
     await message.reply(stats_text, parse_mode="HTML")
 
 

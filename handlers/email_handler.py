@@ -7,6 +7,7 @@ from aiogram import Router, F
 from aiogram.types import Message
 
 from utils.report_generator import generate_report
+from config import RATE_LIMIT
 from handlers.base_handler import (
     check_rate_limit,
     send_rate_limit_message,
@@ -125,7 +126,7 @@ async def handle_email_message(message: Message) -> None:
         )
 
         await save_last_report(user_id, report, query_data=email)
-        record_scan(user_id, "Email", analysis['score'])
+        await record_scan(user_id, "Email", analysis['score'])
         remaining = get_remaining_requests(user_id)
 
         try:

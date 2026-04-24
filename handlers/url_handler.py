@@ -12,6 +12,7 @@ from utils.virustotal import get_vt_checker
 from utils.report_generator import generate_report
 from utils.ai_helper import get_ai_analysis
 from keyboards import get_url_check_keyboard
+from config import RATE_LIMIT
 from handlers.base_handler import (
     check_rate_limit,
     send_rate_limit_message,
@@ -172,7 +173,7 @@ async def callback_rescan_url(callback: CallbackQuery) -> None:
     )
 
     report_id = await save_last_report(user_id, report, query_data=url)
-    record_scan(user_id, "URL", score)
+    await record_scan(user_id, "URL", score)
 
     await callback.message.edit_text(
         report,
@@ -257,7 +258,7 @@ async def _process_url(message: Message, url: str) -> None:
         )
 
         report_id = await save_last_report(user_id, report, query_data=url)
-        record_scan(user_id, "URL", score)
+        await record_scan(user_id, "URL", score)
         remaining = get_remaining_requests(user_id)
 
         try:

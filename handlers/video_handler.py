@@ -9,6 +9,7 @@ from config import SUPPORTED_EXTENSIONS, MAX_FILE_SIZE
 from utils.file_analyzer import analyze_video
 from utils.report_generator import generate_report
 from keyboards import get_file_check_keyboard
+from config import RATE_LIMIT
 from handlers.base_handler import (
     check_rate_limit,
     send_rate_limit_message,
@@ -106,7 +107,7 @@ async def handle_video_native(message: Message) -> None:
         )
 
         report_id = await save_last_report(user_id, report, query_data=file_hash)
-        record_scan(user_id, "Video", analysis['score'])
+        await record_scan(user_id, "Video", analysis['score'])
         remaining = get_remaining_requests(user_id)
 
         try:
@@ -180,7 +181,7 @@ async def _process_video_document(message: Message, file_name: str) -> None:
         )
 
         report_id = await save_last_report(user_id, report, query_data=file_hash)
-        record_scan(user_id, "Video", analysis['score'])
+        await record_scan(user_id, "Video", analysis['score'])
         remaining = get_remaining_requests(user_id)
 
         try:
