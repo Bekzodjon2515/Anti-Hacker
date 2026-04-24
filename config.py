@@ -4,8 +4,18 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+
+# API Keys
 VT_API_KEY = os.getenv("VT_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GOOGLE_SAFE_BROWSING_KEY = os.getenv("GOOGLE_SAFE_BROWSING_KEY")
+URLSCAN_API_KEY = os.getenv("URLSCAN_API_KEY")
+PHISHTANK_API_KEY = os.getenv("PHISHTANK_API_KEY")
+ABUSEIPDB_KEY = os.getenv("ABUSEIPDB_KEY")
+
+# Database and Redis
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///anti_hacker.db")
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 MAX_FILE_SIZE = 200 * 1024 * 1024
 
