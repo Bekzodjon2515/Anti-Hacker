@@ -29,3 +29,7 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 validators==0.35.0
 yarl==1.23.0
+SQLAlchemy>=2.0.0
+aiomysql==0.2.0
+cryptography==42.0.5
+greenlet==3.0.3

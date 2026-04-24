@@ -13,8 +13,17 @@ URLSCAN_API_KEY = os.getenv("URLSCAN_API_KEY")
 PHISHTANK_API_KEY = os.getenv("PHISHTANK_API_KEY")
 ABUSEIPDB_KEY = os.getenv("ABUSEIPDB_KEY")
 
-# Database and Redis
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///anti_hacker.db")
+# Database URL logic (Railway MySQL or local SQLite)
+MYSQL_URL = os.getenv("MYSQL_URL")
+if MYSQL_URL:
+    # SQLAlchemy requires aiomysql driver specified
+    if MYSQL_URL.startswith("mysql://"):
+        DATABASE_URL = MYSQL_URL.replace("mysql://", "mysql+aiomysql://", 1)
+    else:
+        DATABASE_URL = MYSQL_URL
+else:
+    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///anti_hacker.db")
+
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 MAX_FILE_SIZE = 200 * 1024 * 1024
