@@ -111,7 +111,8 @@ async def handle_email_message(message: Message) -> None:
 
     try:
         start_time = time.time()
-        analysis = analyze_email(email)
+        import asyncio
+        analysis = await asyncio.to_thread(analyze_email, email)
         check_time = time.time() - start_time
 
         report = generate_report(
@@ -123,7 +124,7 @@ async def handle_email_message(message: Message) -> None:
             warnings=analysis.get('warnings'),
         )
 
-        save_last_report(user_id, report)
+        await save_last_report(user_id, report, query_data=email)
         record_scan(user_id, "Email", analysis['score'])
         remaining = get_remaining_requests(user_id)
 
@@ -133,7 +134,7 @@ async def handle_email_message(message: Message) -> None:
             pass
 
         await message.reply(
-            report + f"\n\n🔢 <i>Qolgan so'rovlar: {remaining}/{5}</i>",
+            report + f"\n\n🔢 <i>Qolgan so'rovlar: {remaining}/{RATE_LIMIT}</i>",
             parse_mode="HTML",
             disable_web_page_preview=True,
         )

@@ -82,7 +82,18 @@ async def handle_url_message(message: Message) -> None:
 
 @router.callback_query(F.data.startswith("rescan_url:"))
 async def callback_rescan_url(callback: CallbackQuery) -> None:
-    url = callback.data.split(":", 1)[1]
+    try:
+        report_id = int(callback.data.split(":", 1)[1])
+        from utils.database import get_report
+        data = await get_report(report_id)
+        if not data or not data[1]:
+            await callback.answer("❌ URL bazadan topilmadi.", show_alert=True)
+            return
+        url = data[1]
+    except ValueError:
+        # Fallback for old buttons if any
+        url = callback.data.split(":", 1)[1]
+
     user_id = callback.from_user.id
 
     if not check_rate_limit(user_id):
@@ -160,13 +171,13 @@ async def callback_rescan_url(callback: CallbackQuery) -> None:
         ai_summary=ai_summary,
     )
 
-    save_last_report(user_id, report)
+    report_id = await save_last_report(user_id, report, query_data=url)
     record_scan(user_id, "URL", score)
 
     await callback.message.edit_text(
         report,
         parse_mode="HTML",
-        reply_markup=get_url_check_keyboard(url),
+        reply_markup=get_url_check_keyboard(url, report_id),
         disable_web_page_preview=True,
     )
 
@@ -245,7 +256,7 @@ async def _process_url(message: Message, url: str) -> None:
             ai_summary=ai_summary,
         )
 
-        save_last_report(user_id, report)
+        report_id = await save_last_report(user_id, report, query_data=url)
         record_scan(user_id, "URL", score)
         remaining = get_remaining_requests(user_id)
 
@@ -255,9 +266,9 @@ async def _process_url(message: Message, url: str) -> None:
             pass
 
         await message.reply(
-            report + f"\n\n🔢 <i>Qolgan so'rovlar: {remaining}/{5}</i>",
+            report + f"\n\n🔢 <i>Qolgan so'rovlar: {remaining}/{RATE_LIMIT}</i>",
             parse_mode="HTML",
-            reply_markup=get_url_check_keyboard(url),
+            reply_markup=get_url_check_keyboard(url, report_id),
             disable_web_page_preview=True,
         )
 

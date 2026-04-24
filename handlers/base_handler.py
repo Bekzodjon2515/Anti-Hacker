@@ -46,12 +46,13 @@ def get_wait_time(user_id: int) -> int:
     return max(0, wait)
 
 
-def save_last_report(user_id: int, report: str) -> None:
-    _last_reports[user_id] = report
+from utils.database import save_report, get_last_report as db_get_last_report
 
+async def save_last_report(user_id: int, report: str, query_data: str = "") -> int:
+    return await save_report(user_id, report, query_data)
 
-def get_last_report(user_id: int) -> Optional[str]:
-    return _last_reports.get(user_id)
+async def get_last_report(user_id: int) -> Optional[str]:
+    return await db_get_last_report(user_id)
 
 
 async def download_file(bot: Bot, message: Message) -> Optional[str]:
@@ -234,7 +235,7 @@ async def cmd_stats(message: Message) -> None:
 
 @router.message(F.text == "📊 Oxirgi Hisobot")
 async def reply_last_report(message: Message) -> None:
-    report = get_last_report(message.from_user.id)
+    report = await get_last_report(message.from_user.id)
     if report:
         await message.reply(
             "📊 <b>Oxirgi tekshiruv hisobotingiz:</b>\n\n" + report,
@@ -271,8 +272,17 @@ async def reply_help(message: Message) -> None:
 @router.callback_query(F.data.startswith("full_report:"))
 async def callback_full_report(callback: CallbackQuery) -> None:
     await callback.answer()
-    user_id = callback.from_user.id
-    report = get_last_report(user_id)
+    
+    # Extract report_id from callback data if it's there, but since full_report doesn't use report_id here directly yet
+    try:
+        report_id = int(callback.data.split(":")[1])
+        from utils.database import get_report
+        data = await get_report(report_id)
+        report = data[0] if data else None
+    except ValueError:
+        user_id = callback.from_user.id
+        report = await get_last_report(user_id)
+        
     if report:
         await callback.message.answer(
             "📊 <b>To'liq hisobotingiz:</b>\n\n" + report,
@@ -289,7 +299,7 @@ async def callback_full_report(callback: CallbackQuery) -> None:
 
 @router.message(Command("report"))
 async def cmd_report(message: Message) -> None:
-    report = get_last_report(message.from_user.id)
+    report = await get_last_report(message.from_user.id)
     if report:
         await message.reply(
             "📊 <b>Oxirgi tekshiruv hisobotingiz:</b>\n\n" + report,

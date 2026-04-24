@@ -18,6 +18,7 @@ from handlers.base_handler import (
     send_error_message,
     get_remaining_requests,
 )
+from utils.stats_manager import record_scan
 
 logger = logging.getLogger(__name__)
 router = Router(name="video_handler")
@@ -88,7 +89,8 @@ async def handle_video_native(message: Message) -> None:
         await message.bot.download_file(file.file_path, destination=file_path)
 
         start_time = time.time()
-        analysis = analyze_video(file_path, file_name=file_name)
+        import asyncio
+        analysis = await asyncio.to_thread(analyze_video, file_path, file_name=file_name)
         check_time = time.time() - start_time
 
         file_hash = analysis.get('file_hash', '')
@@ -103,7 +105,8 @@ async def handle_video_native(message: Message) -> None:
             file_hash=file_hash,
         )
 
-        save_last_report(user_id, report)
+        report_id = await save_last_report(user_id, report, query_data=file_hash)
+        record_scan(user_id, "Video", analysis['score'])
         remaining = get_remaining_requests(user_id)
 
         try:
@@ -113,10 +116,10 @@ async def handle_video_native(message: Message) -> None:
 
         keyboard = None
         if file_hash:
-            keyboard = get_file_check_keyboard(file_hash)
+            keyboard = get_file_check_keyboard(file_hash, report_id)
 
         await message.reply(
-            report + f"\n\n🔢 <i>Qolgan so'rovlar: {remaining}/{5}</i>",
+            report + f"\n\n🔢 <i>Qolgan so'rovlar: {remaining}/{RATE_LIMIT}</i>",
             parse_mode="HTML",
             reply_markup=keyboard,
             disable_web_page_preview=True,
@@ -160,7 +163,8 @@ async def _process_video_document(message: Message, file_name: str) -> None:
             return
 
         start_time = time.time()
-        analysis = analyze_video(file_path, file_name=file_name)
+        import asyncio
+        analysis = await asyncio.to_thread(analyze_video, file_path, file_name=file_name)
         check_time = time.time() - start_time
 
         file_hash = analysis.get('file_hash', '')
@@ -175,7 +179,8 @@ async def _process_video_document(message: Message, file_name: str) -> None:
             file_hash=file_hash,
         )
 
-        save_last_report(user_id, report)
+        report_id = await save_last_report(user_id, report, query_data=file_hash)
+        record_scan(user_id, "Video", analysis['score'])
         remaining = get_remaining_requests(user_id)
 
         try:
@@ -185,10 +190,10 @@ async def _process_video_document(message: Message, file_name: str) -> None:
 
         keyboard = None
         if file_hash:
-            keyboard = get_file_check_keyboard(file_hash)
+            keyboard = get_file_check_keyboard(file_hash, report_id)
 
         await message.reply(
-            report + f"\n\n🔢 <i>Qolgan so'rovlar: {remaining}/{5}</i>",
+            report + f"\n\n🔢 <i>Qolgan so'rovlar: {remaining}/{RATE_LIMIT}</i>",
             parse_mode="HTML",
             reply_markup=keyboard,
             disable_web_page_preview=True,

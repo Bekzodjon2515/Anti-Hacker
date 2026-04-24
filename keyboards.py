@@ -27,7 +27,7 @@ def get_main_menu() -> ReplyKeyboardMarkup:
     )
 
 
-def get_url_check_keyboard(url: str) -> InlineKeyboardMarkup:
+def get_url_check_keyboard(url: str, report_id: int = 0) -> InlineKeyboardMarkup:
     encoded = quote(url, safe='')
     return InlineKeyboardMarkup(
         inline_keyboard=[
@@ -50,14 +50,14 @@ def get_url_check_keyboard(url: str) -> InlineKeyboardMarkup:
             [
                 InlineKeyboardButton(
                     text="🔄 Qayta tekshirish",
-                    callback_data=f"rescan_url:{url[:60]}",
+                    callback_data=f"rescan_url:{report_id}",
                 ),
             ],
         ]
     )
 
 
-def get_file_check_keyboard(file_hash: str) -> InlineKeyboardMarkup:
+def get_file_check_keyboard(file_hash: str, report_id: int = 0) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -69,7 +69,7 @@ def get_file_check_keyboard(file_hash: str) -> InlineKeyboardMarkup:
             [
                 InlineKeyboardButton(
                     text="📋 To'liq hisobot",
-                    callback_data=f"full_report:{file_hash[:60]}",
+                    callback_data=f"full_report:{report_id}",
                 ),
             ],
         ]

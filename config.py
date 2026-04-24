@@ -3,8 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BOT_TOKEN = os.getenv("API")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 VT_API_KEY = os.getenv("VT_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 MAX_FILE_SIZE = 200 * 1024 * 1024
 

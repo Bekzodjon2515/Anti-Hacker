@@ -72,7 +72,8 @@ async def _process_image(message: Message, file_name: str, file_id: str, is_docu
         await message.bot.download_file(file.file_path, destination=file_path)
 
         start_time = time.time()
-        analysis = analyze_image(file_path, file_name=file_name)
+        import asyncio
+        analysis = await asyncio.to_thread(analyze_image, file_path, file_name=file_name)
         check_time = time.time() - start_time
 
         file_hash = analysis.get('file_hash', '')
@@ -87,7 +88,7 @@ async def _process_image(message: Message, file_name: str, file_id: str, is_docu
             file_hash=file_hash,
         )
 
-        save_last_report(user_id, report)
+        report_id = await save_last_report(user_id, report, query_data=file_hash)
         record_scan(user_id, "Image", analysis['score'])
         remaining = get_remaining_requests(user_id)
 
@@ -96,10 +97,10 @@ async def _process_image(message: Message, file_name: str, file_id: str, is_docu
         except Exception:
             pass
 
-        keyboard = get_file_check_keyboard(file_hash) if file_hash else None
+        keyboard = get_file_check_keyboard(file_hash, report_id) if file_hash else None
 
         await message.reply(
-            report + f"\n\n🔢 <i>Qolgan so'rovlar: {remaining}/{5}</i>",
+            report + f"\n\n🔢 <i>Qolgan so'rovlar: {remaining}/{RATE_LIMIT}</i>",
             parse_mode="HTML",
             reply_markup=keyboard,
             disable_web_page_preview=True,

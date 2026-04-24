@@ -16,6 +16,7 @@ from handlers.base_handler import (
     send_error_message,
     get_remaining_requests,
 )
+from utils.stats_manager import record_scan
 
 logger = logging.getLogger(__name__)
 router = Router(name="word_handler")
@@ -69,7 +70,8 @@ async def handle_word(message: Message) -> None:
             return
 
         start_time = time.time()
-        analysis = analyze_docx(file_path)
+        import asyncio
+        analysis = await asyncio.to_thread(analyze_docx, file_path)
         check_time = time.time() - start_time
 
         file_hash = analysis.get('file_hash', '')
@@ -84,7 +86,8 @@ async def handle_word(message: Message) -> None:
             file_hash=file_hash,
         )
 
-        save_last_report(user_id, report)
+        report_id = await save_last_report(user_id, report, query_data=file_hash)
+        record_scan(user_id, "DOCX", analysis['score'])
         remaining = get_remaining_requests(user_id)
 
         try:
@@ -94,10 +97,10 @@ async def handle_word(message: Message) -> None:
 
         keyboard = None
         if file_hash:
-            keyboard = get_file_check_keyboard(file_hash)
+            keyboard = get_file_check_keyboard(file_hash, report_id)
 
         await message.reply(
-            report + f"\n\n🔢 <i>Qolgan so'rovlar: {remaining}/{5}</i>",
+            report + f"\n\n🔢 <i>Qolgan so'rovlar: {remaining}/{RATE_LIMIT}</i>",
             parse_mode="HTML",
             reply_markup=keyboard,
             disable_web_page_preview=True,

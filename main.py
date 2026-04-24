@@ -1,4 +1,4 @@
-import sys
+https://www.figma.com/design/izrIKddQCb4q8Z9YPPgmg5/Untitled?node-id=0-1&p=f&t=MCCnabxzCF06haem-0import sys
 import asyncio
 import logging
 
@@ -6,7 +6,6 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.types import BotCommand
-from aiogram.enums import ParseMode
 
 from config import BOT_TOKEN, LOG_LEVEL, LOG_FORMAT, LOG_DATE_FORMAT
 from handlers import (
@@ -31,10 +30,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+from utils.database import init_db
+
 async def main() -> None:
     if not BOT_TOKEN:
         logger.critical("BOT_TOKEN topilmadi! .env faylni tekshiring.")
         sys.exit(1)
+
+    await init_db()
 
     logger.info("Bot ishga tushirilmoqda...")
 
