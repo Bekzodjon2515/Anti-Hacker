@@ -1,4 +1,4 @@
-https://www.figma.com/design/izrIKddQCb4q8Z9YPPgmg5/Untitled?node-id=0-1&p=f&t=MCCnabxzCF06haem-0import sys
+import sys
 import asyncio
 import logging
 
@@ -38,6 +38,10 @@ async def main() -> None:
         sys.exit(1)
 
     await init_db()
+
+    # Start scheduled cleanup task
+    from utils.cleanup import start_cleanup_task
+    asyncio.create_task(start_cleanup_task())
 
     logger.info("Bot ishga tushirilmoqda...")
 
